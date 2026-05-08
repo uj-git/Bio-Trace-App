@@ -43,7 +43,7 @@ fun CameraPreview(
     val lifecycleOwner = LocalLifecycleOwner.current
     val imageCapture = remember(cameraFacing) {
         ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
             .build()
     }
     val analysisExecutor = remember { Executors.newSingleThreadExecutor() }
