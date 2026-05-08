@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import com.umang.biotrace.camera.GoogleHandLandmarkerDetector
 import com.umang.biotrace.camera.LuminosityAnalyzer
 import com.umang.biotrace.domain.model.FrameAnalysis
 import com.umang.biotrace.domain.model.LightType
@@ -44,6 +45,7 @@ fun CameraPreview(
     }
     val analysisExecutor = remember { Executors.newSingleThreadExecutor() }
     val captureExecutor = remember { ContextCompat.getMainExecutor(context) }
+    val handDetector = remember { GoogleHandLandmarkerDetector.create(context) }
     var previewView by remember { mutableStateOf<PreviewView?>(null) }
     var camera by remember { mutableStateOf<Camera?>(null) }
 
@@ -72,7 +74,7 @@ fun CameraPreview(
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
             .build()
             .also {
-                it.setAnalyzer(analysisExecutor, LuminosityAnalyzer(onFrameAnalyzed))
+                it.setAnalyzer(analysisExecutor, LuminosityAnalyzer(handDetector, onFrameAnalyzed))
             }
 
         cameraProvider.unbindAll()
@@ -109,6 +111,7 @@ fun CameraPreview(
 
     DisposableEffect(Unit) {
         onDispose {
+            handDetector?.close()
             analysisExecutor.shutdown()
         }
     }

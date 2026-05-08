@@ -24,7 +24,10 @@ data class FrameAnalysis(
     val blurScore: Float = 0f,
     val lightType: LightType = LightType.Normal,
     val estimatedHandSide: HandSide = HandSide.Left,
-    val dorsalDetected: Boolean = false
+    val dorsalDetected: Boolean = false,
+    val handDetected: Boolean = false,
+    val fingerCount: Int = 0,
+    val aiProvider: String = "MediaPipe fallback"
 )
 
 data class CameraMetrics(

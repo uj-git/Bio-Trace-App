@@ -63,6 +63,10 @@ fun FingerDetectionScreen(
                 text = "Light: ${state.frameAnalysis.lightType.label} | Blur ${state.frameAnalysis.blurScore.format()}",
                 color = Color.White.copy(alpha = 0.86f)
             )
+            Text(
+                text = "${state.frameAnalysis.aiProvider} | Detected fingers: ${state.frameAnalysis.fingerCount}",
+                color = Color.White.copy(alpha = 0.86f)
+            )
 
             if (state.frameAnalysis.dorsalDetected) {
                 Spacer(modifier = Modifier.height(8.dp))
