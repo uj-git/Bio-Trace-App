@@ -49,17 +49,12 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.navigation.compose)
 
     // Koin
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
-
-    // Retrofit & OkHttp
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.gson)
-    implementation(libs.okhttp)
-    implementation(libs.okhttp.logging)
 
     // Coil
     implementation(libs.coil.compose)
