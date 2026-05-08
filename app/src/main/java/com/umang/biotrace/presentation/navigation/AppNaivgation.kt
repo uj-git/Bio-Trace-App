@@ -3,6 +3,12 @@ package com.umang.biotrace.presentation.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import com.umang.biotrace.presentation.fingerdetection.FingerDetectionScreen
+import com.umang.biotrace.presentation.homescreen.HomeScreen
+import com.umang.biotrace.presentation.palmdetection.PalmDetectionScreen
+import com.umang.biotrace.presentation.resultscreen.ResultScreen
+import com.umang.biotrace.presentation.splashscreen.SplashScreen
 
 @Composable
 fun AppNavGraph(
