@@ -38,7 +38,6 @@ fun FingerDetectionScreen(
     ) {
         CameraPreview(
             modifier = Modifier.fillMaxSize(),
-            previewKey = "finger",
             cameraFacing = state.cameraFacing,
             frameAnalysis = state.frameAnalysis,
             onFrameAnalyzed = viewModel::onFrameAnalysis,
