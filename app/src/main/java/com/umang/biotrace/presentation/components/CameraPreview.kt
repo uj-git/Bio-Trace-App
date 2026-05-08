@@ -34,7 +34,6 @@ import java.util.concurrent.TimeUnit
 @Composable
 fun CameraPreview(
     modifier: Modifier = Modifier,
-    previewKey: String,
     cameraFacing: CameraFacing,
     frameAnalysis: FrameAnalysis,
     onFrameAnalyzed: (FrameAnalysis) -> Unit,
@@ -42,9 +41,9 @@ fun CameraPreview(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val imageCapture = remember(previewKey, cameraFacing) {
+    val imageCapture = remember(cameraFacing) {
         ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             .build()
     }
     val analysisExecutor = remember { Executors.newSingleThreadExecutor() }
@@ -80,13 +79,9 @@ fun CameraPreview(
         }
     )
 
-    var cameraProvider by remember { mutableStateOf<ProcessCameraProvider?>(null) }
-
-    LaunchedEffect(previewView, previewKey, cameraFacing) {
+    LaunchedEffect(previewView, cameraFacing) {
         val view = previewView ?: return@LaunchedEffect
-        val provider = ProcessCameraProvider.getInstance(context).get()
-        cameraProvider = provider
-
+        val cameraProvider = ProcessCameraProvider.getInstance(context).get()
         val cameraSelector = CameraSelector.Builder()
             .requireLensFacing(cameraFacing.toLensFacing())
             .build()
@@ -100,8 +95,8 @@ fun CameraPreview(
                 it.setAnalyzer(analysisExecutor, LuminosityAnalyzer(handDetector, onFrameAnalyzed))
             }
 
-        provider.unbindAll()
-        camera = provider.bindToLifecycle(
+        cameraProvider.unbindAll()
+        camera = cameraProvider.bindToLifecycle(
             lifecycleOwner,
             cameraSelector,
             preview,
@@ -132,7 +127,6 @@ fun CameraPreview(
         onDispose {
             handDetector?.close()
             analysisExecutor.shutdown()
-            cameraProvider?.unbindAll()
         }
     }
 }
