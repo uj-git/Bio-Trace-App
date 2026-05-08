@@ -79,9 +79,13 @@ fun CameraPreview(
         }
     )
 
+    var cameraProvider by remember { mutableStateOf<ProcessCameraProvider?>(null) }
+
     LaunchedEffect(previewView, cameraFacing) {
         val view = previewView ?: return@LaunchedEffect
-        val cameraProvider = ProcessCameraProvider.getInstance(context).get()
+        val provider = ProcessCameraProvider.getInstance(context).get()
+        cameraProvider = provider
+
         val cameraSelector = CameraSelector.Builder()
             .requireLensFacing(cameraFacing.toLensFacing())
             .build()
@@ -95,8 +99,8 @@ fun CameraPreview(
                 it.setAnalyzer(analysisExecutor, LuminosityAnalyzer(handDetector, onFrameAnalyzed))
             }
 
-        cameraProvider.unbindAll()
-        camera = cameraProvider.bindToLifecycle(
+        provider.unbindAll()
+        camera = provider.bindToLifecycle(
             lifecycleOwner,
             cameraSelector,
             preview,
@@ -127,6 +131,7 @@ fun CameraPreview(
         onDispose {
             handDetector?.close()
             analysisExecutor.shutdown()
+            cameraProvider?.unbindAll()   // ← fixes the leak
         }
     }
 }
