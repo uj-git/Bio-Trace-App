@@ -52,7 +52,8 @@ fun FingerDetectionScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
-                .padding(24.dp)
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+                .padding(16.dp)
         ) {
 
             Text(
