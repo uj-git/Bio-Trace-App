@@ -6,13 +6,18 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.provider.Settings
+import com.umang.biotrace.domain.model.CameraFacing
 import com.umang.biotrace.domain.model.CameraMetrics
 import com.umang.biotrace.domain.model.FrameAnalysis
 
 class CameraInfoProvider(private val context: Context) {
 
     @SuppressLint("HardwareIds")
-    fun buildMetrics(analysis: FrameAnalysis, lensFacing: Int = CameraCharacteristics.LENS_FACING_BACK): CameraMetrics {
+    fun buildMetrics(analysis: FrameAnalysis, cameraFacing: CameraFacing): CameraMetrics {
+        val lensFacing = when (cameraFacing) {
+            CameraFacing.Rear -> CameraCharacteristics.LENS_FACING_BACK
+            CameraFacing.Front -> CameraCharacteristics.LENS_FACING_FRONT
+        }
         val characteristics = findCamera(lensFacing)
         val focalLength = characteristics
             ?.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
@@ -28,7 +33,7 @@ class CameraInfoProvider(private val context: Context) {
                 ?: Build.MODEL,
             brightnessScore = analysis.brightnessScore,
             lightType = analysis.lightType,
-            cameraType = if (lensFacing == CameraCharacteristics.LENS_FACING_FRONT) "front" else "rear",
+            cameraType = cameraFacing.label.lowercase(),
             focalLength = focalLength,
             aperture = aperture,
             focusDistance = minFocusDistance,

@@ -24,6 +24,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.umang.biotrace.camera.GoogleHandLandmarkerDetector
 import com.umang.biotrace.camera.LuminosityAnalyzer
+import com.umang.biotrace.domain.model.CameraFacing
 import com.umang.biotrace.domain.model.FrameAnalysis
 import com.umang.biotrace.domain.model.LightType
 import java.util.concurrent.Executor
@@ -33,13 +34,14 @@ import java.util.concurrent.TimeUnit
 @Composable
 fun CameraPreview(
     modifier: Modifier = Modifier,
+    cameraFacing: CameraFacing,
     frameAnalysis: FrameAnalysis,
     onFrameAnalyzed: (FrameAnalysis) -> Unit,
     onCameraReady: (ImageCapture, Executor) -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val imageCapture = remember {
+    val imageCapture = remember(cameraFacing) {
         ImageCapture.Builder()
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             .build()
@@ -77,9 +79,12 @@ fun CameraPreview(
         }
     )
 
-    LaunchedEffect(previewView) {
+    LaunchedEffect(previewView, cameraFacing) {
         val view = previewView ?: return@LaunchedEffect
         val cameraProvider = ProcessCameraProvider.getInstance(context).get()
+        val cameraSelector = CameraSelector.Builder()
+            .requireLensFacing(cameraFacing.toLensFacing())
+            .build()
         val preview = Preview.Builder().build().also {
             it.setSurfaceProvider(view.surfaceProvider)
         }
@@ -93,7 +98,7 @@ fun CameraPreview(
         cameraProvider.unbindAll()
         camera = cameraProvider.bindToLifecycle(
             lifecycleOwner,
-            CameraSelector.DEFAULT_BACK_CAMERA,
+            cameraSelector,
             preview,
             imageCapture,
             imageAnalysis
@@ -124,6 +129,11 @@ fun CameraPreview(
             analysisExecutor.shutdown()
         }
     }
+}
+
+private fun CameraFacing.toLensFacing(): Int = when (this) {
+    CameraFacing.Rear -> CameraSelector.LENS_FACING_BACK
+    CameraFacing.Front -> CameraSelector.LENS_FACING_FRONT
 }
 
 private fun Camera.startTapToFocus(

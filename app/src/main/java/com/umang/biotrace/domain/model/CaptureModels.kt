@@ -19,6 +19,11 @@ enum class LightType(val label: String) {
     Bright("Bright light")
 }
 
+enum class CameraFacing(val label: String) {
+    Rear("Rear"),
+    Front("Front")
+}
+
 data class FrameAnalysis(
     val brightnessScore: Float = 0f,
     val blurScore: Float = 0f,

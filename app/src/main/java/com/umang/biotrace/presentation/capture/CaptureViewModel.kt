@@ -8,6 +8,7 @@ import com.umang.biotrace.data.CameraMetricStore
 import com.umang.biotrace.data.FingerValidation
 import com.umang.biotrace.data.HandDetectionEngine
 import com.umang.biotrace.data.ImageStorageRepository
+import com.umang.biotrace.domain.model.CameraFacing
 import com.umang.biotrace.domain.model.CaptureResult
 import com.umang.biotrace.domain.model.FingerType
 import com.umang.biotrace.domain.model.FrameAnalysis
@@ -36,8 +37,20 @@ class CaptureViewModel(
         _uiState.update { it.copy(frameAnalysis = analysis, detectedHandSide = analysis.estimatedHandSide) }
     }
 
+    fun switchCamera() {
+        _uiState.update {
+            it.copy(
+                cameraFacing = when (it.cameraFacing) {
+                    CameraFacing.Rear -> CameraFacing.Front
+                    CameraFacing.Front -> CameraFacing.Rear
+                }
+            )
+        }
+    }
+
     fun capturePalm(imageCapture: ImageCapture, executor: Executor, onCaptured: () -> Unit) {
-        val analysis = uiState.value.frameAnalysis
+        val state = uiState.value
+        val analysis = state.frameAnalysis
         if (analysis.dorsalDetected) {
             showMessage("Palm dorsal side detected, minutiae points won't be extracted.")
             return
@@ -48,7 +61,7 @@ class CaptureViewModel(
         viewModelScope.launch {
             runCatching {
                 val file = imageStorageRepository.savePalm(imageCapture, handSide, executor)
-                val metrics = cameraInfoProvider.buildMetrics(analysis)
+                val metrics = cameraInfoProvider.buildMetrics(analysis, state.cameraFacing)
                 metricStore.save(metrics)
                 palmRecords = handDetectionEngine.extractPalmRecords(handSide, analysis)
                 _uiState.update {
@@ -103,7 +116,7 @@ class CaptureViewModel(
         viewModelScope.launch {
             runCatching {
                 val file = imageStorageRepository.saveFinger(imageCapture, state.detectedHandSide, expectedFinger, executor)
-                val metrics = cameraInfoProvider.buildMetrics(analysis)
+                val metrics = cameraInfoProvider.buildMetrics(analysis, state.cameraFacing)
                 metricStore.save(metrics)
                 _uiState.update {
                     val nextIndex = it.activeFingerIndex + 1
@@ -137,6 +150,7 @@ class CaptureViewModel(
 data class CaptureUiState(
     val frameAnalysis: FrameAnalysis = FrameAnalysis(),
     val detectedHandSide: HandSide = HandSide.Left,
+    val cameraFacing: CameraFacing = CameraFacing.Rear,
     val activeFingerIndex: Int = 0,
     val isCapturing: Boolean = false,
     val statusMessage: String? = null,

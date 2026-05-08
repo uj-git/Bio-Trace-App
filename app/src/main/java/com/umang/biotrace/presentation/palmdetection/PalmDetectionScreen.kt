@@ -37,6 +37,7 @@ fun PalmDetectionScreen(
     ) {
         CameraPreview(
             modifier = Modifier.fillMaxSize(),
+            cameraFacing = state.cameraFacing,
             frameAnalysis = state.frameAnalysis,
             onFrameAnalyzed = viewModel::onFrameAnalysis,
             onCameraReady = { capture, executor ->
@@ -55,6 +56,22 @@ fun PalmDetectionScreen(
                 .padding(16.dp)
         ) {
 
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Camera: ${state.cameraFacing.label}",
+                    color = Color.White
+                )
+                TextButton(
+                    enabled = !state.isCapturing,
+                    onClick = viewModel::switchCamera
+                ) {
+                    Text(text = "Switch")
+                }
+            }
             Text(
                 text = "Detected: ${state.detectedHandSide.label} | Light: ${state.frameAnalysis.lightType.label}",
                 color = Color.White
