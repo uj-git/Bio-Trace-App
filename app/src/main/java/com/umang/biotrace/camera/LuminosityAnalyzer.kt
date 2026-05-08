@@ -67,7 +67,7 @@ class LuminosityAnalyzer(
                 blurScore = blurScore,
                 lightType = lightType,
                 estimatedHandSide = lastHandAnalysis?.handSide ?: fallbackHandSide,
-                dorsalDetected = blurScore < 0.12f && brightness > 0.35f,
+                dorsalDetected = lastHandAnalysis?.isDorsal ?: false,
                 handDetected = lastHandAnalysis != null,
                 fingerCount = lastHandAnalysis?.fingerCount ?: 0,
                 aiProvider = if (lastHandAnalysis != null) "Google MediaPipe Hand Landmarker" else "MediaPipe fallback"
