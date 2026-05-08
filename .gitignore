@@ -1,35 +1,85 @@
-# Build artifacts
+.gradle/
+build/
+*/build/
+gradle-app.setting
+!gradle-wrapper.jar
+
+local.properties
+
+*.kotlin_module
+
 bin/
 gen/
 out/
-build/
-.gradle/
+generated/
+captures/
 
-# IDE files
-*.iml
 .idea/
+*.iml
 *.ipr
 *.iws
 
-# Android Studio
 .navigation/
-captures/
-.externalNativeBuild/
 .cxx/
+.externalNativeBuild/
 
-# Local configuration
-local.properties
-
-# OS files
 .DS_Store
 Thumbs.db
+Desktop.ini
 
-# Log files
 *.log
 
-# Keystore files
-# *.jks
-# *.keystore
+*.apk
+*.ap_
+*.aab
 
-# Google Services
-# google-services.json
+mapping/
+outputs/mapping/
+replay_pid*
+
+*.jks
+*.keystore
+*.pem
+
+google-services.json
+serviceAccount.json
+firebase_token.txt
+
+firebase-app-distribution/
+
+obj/
+
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+
+compose_compiler/
+.compose/
+
+schemas/
+
+kapt/
+ksp/
+build/generated/
+
+coverage/
+jacoco/
+*.ec
+
+.env
+.env.*
+secrets.properties
+keys.properties
+
+*.swp
+*.swo
+*~
+
+.vscode/
+
+.fleet/
+
+tmp/
+temp/
+.cache/
