@@ -7,6 +7,7 @@ import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.core.BaseOptions
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.handlandmarker.HandLandmarker
+import com.umang.biotrace.domain.model.FingerType
 import com.umang.biotrace.domain.model.HandSide
 import java.io.Closeable
 
@@ -25,6 +26,7 @@ class GoogleHandLandmarkerDetector private constructor(
         return HandLandmarkAnalysis(
             handSide = if (handedness.equals("Right", ignoreCase = true)) HandSide.Right else HandSide.Left,
             fingerCount = countRaisedFingers(landmarks, handedness),
+            detectedFinger = detectSingleRaisedFinger(landmarks, handedness),
             isDorsal = isDorsalSide(landmarks, handedness)
         )
     }
@@ -71,24 +73,45 @@ class GoogleHandLandmarkerDetector private constructor(
         landmarks: List<NormalizedLandmark>,
         handedness: String?
     ): Int {
-        if (landmarks.size < 21) return 0
+        return raisedFingers(landmarks, handedness).size
+    }
+
+    private fun detectSingleRaisedFinger(
+        landmarks: List<NormalizedLandmark>,
+        handedness: String?
+    ): FingerType? {
+        val raisedFingers = raisedFingers(landmarks, handedness)
+        return raisedFingers.singleOrNull()
+    }
+
+    private fun raisedFingers(
+        landmarks: List<NormalizedLandmark>,
+        handedness: String?
+    ): List<FingerType> {
+        if (landmarks.size < 21) return emptyList()
+
+        val raised = mutableListOf<FingerType>()
 
         val thumbRaised = if (handedness.equals("Right", ignoreCase = true)) {
             landmarks[THUMB_TIP].x() > landmarks[THUMB_IP].x()
         } else {
             landmarks[THUMB_TIP].x() < landmarks[THUMB_IP].x()
         }
+        if (thumbRaised) raised += FingerType.Thumb
 
-        val raisedFingers = listOf(
-            INDEX_TIP to INDEX_PIP,
-            MIDDLE_TIP to MIDDLE_PIP,
-            RING_TIP to RING_PIP,
-            LITTLE_TIP to LITTLE_PIP
-        ).count { (tip, pip) ->
-            landmarks[tip].y() < landmarks[pip].y()
+        listOf(
+            FingerType.Index to (INDEX_TIP to INDEX_PIP),
+            FingerType.Middle to (MIDDLE_TIP to MIDDLE_PIP),
+            FingerType.Ring to (RING_TIP to RING_PIP),
+            FingerType.Little to (LITTLE_TIP to LITTLE_PIP)
+        ).forEach { (finger, points) ->
+            val (tip, pip) = points
+            if (landmarks[tip].y() < landmarks[pip].y()) {
+                raised += finger
+            }
         }
 
-        return raisedFingers + if (thumbRaised) 1 else 0
+        return raised
     }
 
     companion object {
@@ -133,5 +156,6 @@ class GoogleHandLandmarkerDetector private constructor(
 data class HandLandmarkAnalysis(
     val handSide: HandSide,
     val fingerCount: Int,
+    val detectedFinger: FingerType?,
     val isDorsal: Boolean = false
 )

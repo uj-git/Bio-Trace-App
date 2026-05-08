@@ -42,6 +42,10 @@ class HandDetectionEngine {
             return FingerValidation.IncorrectFinger
         }
 
+        if (!analysis.handDetected || analysis.fingerCount != 1 || analysis.detectedFinger != expectedFinger) {
+            return FingerValidation.IncorrectFinger
+        }
+
         val storedRecord = records.firstOrNull {
             it.handSide == handSide && it.fingerType == expectedFinger
         } ?: return FingerValidation.NoMatch

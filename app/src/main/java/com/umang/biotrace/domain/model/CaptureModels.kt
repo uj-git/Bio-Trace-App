@@ -32,6 +32,7 @@ data class FrameAnalysis(
     val dorsalDetected: Boolean = false,
     val handDetected: Boolean = false,
     val fingerCount: Int = 0,
+    val detectedFinger: FingerType? = null,
     val aiProvider: String = "MediaPipe fallback"
 )
 

@@ -70,6 +70,7 @@ class LuminosityAnalyzer(
                 dorsalDetected = lastHandAnalysis?.isDorsal ?: false,
                 handDetected = lastHandAnalysis != null,
                 fingerCount = lastHandAnalysis?.fingerCount ?: 0,
+                detectedFinger = lastHandAnalysis?.detectedFinger,
                 aiProvider = if (lastHandAnalysis != null) "Google MediaPipe Hand Landmarker" else "MediaPipe fallback"
             )
         )
