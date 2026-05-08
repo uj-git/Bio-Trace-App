@@ -24,12 +24,47 @@ class GoogleHandLandmarkerDetector private constructor(
 
         return HandLandmarkAnalysis(
             handSide = if (handedness.equals("Right", ignoreCase = true)) HandSide.Right else HandSide.Left,
-            fingerCount = countRaisedFingers(landmarks, handedness)
+            fingerCount = countRaisedFingers(landmarks, handedness),
+            isDorsal = isDorsalSide(landmarks, handedness)
         )
     }
 
     override fun close() {
         handLandmarker.close()
+    }
+
+    /**
+     * Detects whether the dorsal (back) side of the hand is facing the camera.
+     *
+     * MediaPipe's z-axis is depth relative to the wrist — negative z means closer
+     * to the camera. On a palm-facing hand the finger tips have lower (more negative)
+     * z than the knuckle MCPs. On a dorsal-facing hand this relationship flips.
+     *
+     * We also cross-check handedness: MediaPipe labels the hand as seen from the
+     * camera. A "Right" label on screen means the hand's own right side is visible,
+     * which for a normally-held right hand means it IS the palm side. If the person
+     * flips their hand the label stays the same but the z-relationship reverses,
+     * giving us the dorsal signal.
+     */
+    private fun isDorsalSide(landmarks: List<NormalizedLandmark>, handedness: String?): Boolean {
+        if (landmarks.size < 21) return false
+
+        // Compare z of finger tips vs their MCP (knuckle) bases.
+        // On a palm-facing hand: tip.z < mcp.z  (tips are closer to camera)
+        // On a dorsal-facing hand: tip.z > mcp.z (knuckles are closer)
+        val tipMcpPairs = listOf(
+            INDEX_TIP to INDEX_MCP,
+            MIDDLE_TIP to MIDDLE_MCP,
+            RING_TIP to RING_MCP,
+            LITTLE_TIP to LITTLE_MCP
+        )
+
+        val dorsalVotes = tipMcpPairs.count { (tip, mcp) ->
+            landmarks[tip].z() > landmarks[mcp].z()
+        }
+
+        // Require majority (3 of 4) to reduce noise from bent fingers
+        return dorsalVotes >= 3
     }
 
     private fun countRaisedFingers(
@@ -58,6 +93,8 @@ class GoogleHandLandmarkerDetector private constructor(
 
     companion object {
         private const val MODEL_NAME = "hand_landmarker.task"
+
+        // Finger tips
         private const val THUMB_TIP = 4
         private const val THUMB_IP = 3
         private const val INDEX_TIP = 8
@@ -68,6 +105,12 @@ class GoogleHandLandmarkerDetector private constructor(
         private const val RING_PIP = 14
         private const val LITTLE_TIP = 20
         private const val LITTLE_PIP = 18
+
+        // MCP knuckles (used for dorsal detection)
+        private const val INDEX_MCP = 5
+        private const val MIDDLE_MCP = 9
+        private const val RING_MCP = 13
+        private const val LITTLE_MCP = 17
 
         fun create(context: Context): GoogleHandLandmarkerDetector? {
             return runCatching {
@@ -89,5 +132,6 @@ class GoogleHandLandmarkerDetector private constructor(
 
 data class HandLandmarkAnalysis(
     val handSide: HandSide,
-    val fingerCount: Int
+    val fingerCount: Int,
+    val isDorsal: Boolean = false
 )
