@@ -38,6 +38,7 @@ fun FingerDetectionScreen(
     ) {
         CameraPreview(
             modifier = Modifier.fillMaxSize(),
+            previewKey = "finger",
             cameraFacing = state.cameraFacing,
             frameAnalysis = state.frameAnalysis,
             onFrameAnalyzed = viewModel::onFrameAnalysis,
@@ -89,7 +90,6 @@ fun FingerDetectionScreen(
                 text = "${state.frameAnalysis.aiProvider} | Detected fingers: ${state.frameAnalysis.fingerCount}",
                 color = Color.White.copy(alpha = 0.86f)
             )
-
             if (state.frameAnalysis.dorsalDetected) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(

@@ -37,6 +37,7 @@ fun PalmDetectionScreen(
     ) {
         CameraPreview(
             modifier = Modifier.fillMaxSize(),
+            previewKey = "palm",
             cameraFacing = state.cameraFacing,
             frameAnalysis = state.frameAnalysis,
             onFrameAnalyzed = viewModel::onFrameAnalysis,

@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit
 @Composable
 fun CameraPreview(
     modifier: Modifier = Modifier,
+    previewKey: String,
     cameraFacing: CameraFacing,
     frameAnalysis: FrameAnalysis,
     onFrameAnalyzed: (FrameAnalysis) -> Unit,
@@ -41,7 +42,7 @@ fun CameraPreview(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val imageCapture = remember(cameraFacing) {
+    val imageCapture = remember(previewKey, cameraFacing) {
         ImageCapture.Builder()
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
             .build()
@@ -81,7 +82,7 @@ fun CameraPreview(
 
     var cameraProvider by remember { mutableStateOf<ProcessCameraProvider?>(null) }
 
-    LaunchedEffect(previewView, cameraFacing) {
+    LaunchedEffect(previewView, previewKey, cameraFacing) {
         val view = previewView ?: return@LaunchedEffect
         val provider = ProcessCameraProvider.getInstance(context).get()
         cameraProvider = provider
@@ -131,7 +132,7 @@ fun CameraPreview(
         onDispose {
             handDetector?.close()
             analysisExecutor.shutdown()
-            cameraProvider?.unbindAll()   // ← fixes the leak
+            cameraProvider?.unbindAll()
         }
     }
 }
