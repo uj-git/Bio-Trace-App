@@ -78,6 +78,10 @@ fun FingerDetectionScreen(
                 color = Color.White
             )
             Text(
+                text = "Palm: ${state.capturedPalmHandSide?.label ?: "-"} | Current: ${state.detectedHandSide.label}",
+                color = Color.White.copy(alpha = 0.86f)
+            )
+            Text(
                 text = "Light: ${state.frameAnalysis.lightType.label} | Blur ${state.frameAnalysis.blurScore.format()}",
                 color = Color.White.copy(alpha = 0.86f)
             )

@@ -68,6 +68,7 @@ class CaptureViewModel(
                     it.copy(
                         isCapturing = false,
                         detectedHandSide = handSide,
+                        capturedPalmHandSide = handSide,
                         activeFingerIndex = 0,
                         result = it.result.copy(palmPath = file.absolutePath, lastMetrics = metrics)
                     )
@@ -85,13 +86,19 @@ class CaptureViewModel(
         val state = uiState.value
         val analysis = state.frameAnalysis
         val expectedFinger = state.currentFinger ?: return
+        val capturedPalmHandSide = state.capturedPalmHandSide
+
+        if (capturedPalmHandSide == null) {
+            showMessage("Capture palm before scanning fingers")
+            return
+        }
 
         if (analysis.blurScore < 0.18f) {
             showMessage("Image is blurred. Please recapture the finger.")
             return
         }
 
-        when (val validation = handDetectionEngine.validateFinger(state.detectedHandSide, expectedFinger, palmRecords, analysis)) {
+        when (val validation = handDetectionEngine.validateFinger(capturedPalmHandSide, expectedFinger, palmRecords, analysis)) {
             FingerValidation.Dorsal -> {
                 showMessage("Finger dorsal side detected, please show palm side finger which contains finger record or minutiae points")
                 return
@@ -108,14 +115,14 @@ class CaptureViewModel(
             }
 
             is FingerValidation.Match -> {
-                showMessage("${validation.fingerType.label} finger from ${state.detectedHandSide.label}")
+                showMessage("${validation.fingerType.label} finger from ${capturedPalmHandSide.label}")
             }
         }
 
         _uiState.update { it.copy(isCapturing = true) }
         viewModelScope.launch {
             runCatching {
-                val file = imageStorageRepository.saveFinger(imageCapture, state.detectedHandSide, expectedFinger, executor)
+                val file = imageStorageRepository.saveFinger(imageCapture, capturedPalmHandSide, expectedFinger, executor)
                 val metrics = cameraInfoProvider.buildMetrics(analysis, state.cameraFacing)
                 metricStore.save(metrics)
                 _uiState.update {
@@ -150,6 +157,7 @@ class CaptureViewModel(
 data class CaptureUiState(
     val frameAnalysis: FrameAnalysis = FrameAnalysis(),
     val detectedHandSide: HandSide = HandSide.Left,
+    val capturedPalmHandSide: HandSide? = null,
     val cameraFacing: CameraFacing = CameraFacing.Rear,
     val activeFingerIndex: Int = 0,
     val isCapturing: Boolean = false,
