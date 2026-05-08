@@ -1,5 +1,6 @@
 package com.umang.biotrace.presentation.components
 
+import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -61,6 +62,18 @@ fun CameraPreview(
                 implementationMode = PreviewView.ImplementationMode.COMPATIBLE
                 previewView = this
             }
+        },
+        update = { view ->
+            view.setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_UP) {
+                    camera?.startTapToFocus(
+                        previewView = view,
+                        x = event.x,
+                        y = event.y
+                    )
+                }
+                true
+            }
         }
     )
 
@@ -102,11 +115,7 @@ fun CameraPreview(
 
     LaunchedEffect(camera, previewView) {
         val view = previewView ?: return@LaunchedEffect
-        val meteringPoint = view.meteringPointFactory.createPoint(view.width / 2f, view.height / 2f)
-        val action = FocusMeteringAction.Builder(meteringPoint, FocusMeteringAction.FLAG_AF)
-            .setAutoCancelDuration(2, TimeUnit.SECONDS)
-            .build()
-        camera?.cameraControl?.startFocusAndMetering(action)
+        camera?.startTapToFocus(view, view.width / 2f, view.height / 2f)
     }
 
     DisposableEffect(Unit) {
@@ -115,4 +124,19 @@ fun CameraPreview(
             analysisExecutor.shutdown()
         }
     }
+}
+
+private fun Camera.startTapToFocus(
+    previewView: PreviewView,
+    x: Float,
+    y: Float
+) {
+    val meteringPoint = previewView.meteringPointFactory.createPoint(x, y)
+    val action = FocusMeteringAction.Builder(
+        meteringPoint,
+        FocusMeteringAction.FLAG_AF or FocusMeteringAction.FLAG_AE
+    )
+        .setAutoCancelDuration(3, TimeUnit.SECONDS)
+        .build()
+    cameraControl.startFocusAndMetering(action)
 }
