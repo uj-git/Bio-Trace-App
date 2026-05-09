@@ -2,6 +2,7 @@ package com.umang.biotrace
 
 import android.app.Application
 import com.umang.biotrace.di.appModule
+import com.umang.biotrace.di.networkModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
@@ -10,7 +11,7 @@ class BioTraceApplication : Application() {
         super.onCreate()
         startKoin {
             androidContext(this@BioTraceApplication)
-            modules(appModule)
+            modules(appModule, networkModule)
         }
     }
 }
