@@ -19,6 +19,7 @@ coil = "2.7.0"
 camerax = "1.3.4"
 coroutines = "1.8.1"
 mediaPipe = "0.10.14"
+chucker = "4.3.1"
 
 [libraries]
 # Android Core
@@ -69,6 +70,10 @@ coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-andro
 
 # MediaPipe
 mediapipe = { group = "com.google.mediapipe", name = "tasks-vision", version.ref = "mediaPipe" }
+
+# Chucker
+chucker-library = { group = "com.github.chuckerteam.chucker", name = "library", version.ref = "chucker" }
+chucker-library-no-op = { group = "com.github.chuckerteam.chucker", name = "library-no-op", version.ref = "chucker" }
 
 # Test
 junit = { group = "junit", name = "junit", version.ref = "junit" }
