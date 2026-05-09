@@ -1,4 +1,4 @@
-package com.umang.biotrace.data.remote
+package com.umang.biotrace.data.api.remote
 
 import com.umang.biotrace.domain.model.remote.ScanResponse
 import com.umang.biotrace.domain.model.remote.ScanUploadRequest

@@ -1,6 +1,6 @@
 package com.umang.biotrace.di
 
-import com.umang.biotrace.data.remote.ScanApiService
+import com.umang.biotrace.data.api.remote.ScanApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.dsl.module

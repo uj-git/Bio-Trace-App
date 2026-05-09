@@ -1,4 +1,4 @@
-package com.umang.biotrace.data
+package com.umang.biotrace.data.repository.local
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -6,8 +6,6 @@ import android.graphics.BitmapFactory
 import android.os.Environment
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
-import com.umang.biotrace.domain.model.FingerType
-import com.umang.biotrace.domain.model.HandSide
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -24,7 +22,7 @@ class ImageStorageRepository(private val context: Context) {
         val time = timestamp()
         val file = outputFile("${handSide.filePrefix()}_$time.${handSide.palmExtension()}")
         val captureFile = if (handSide == HandSide.Left) outputFile("${handSide.filePrefix()}_${time}_temp.jpg") else file
-        
+
         capture(imageCapture, captureFile, executor)
         if (handSide == HandSide.Left) {
             convertJpegToPng(captureFile, file)
