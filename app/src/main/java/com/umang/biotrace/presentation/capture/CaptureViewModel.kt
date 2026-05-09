@@ -8,6 +8,7 @@ import com.umang.biotrace.data.CameraMetricStore
 import com.umang.biotrace.data.FingerValidation
 import com.umang.biotrace.data.HandDetectionEngine
 import com.umang.biotrace.data.repository.local.ImageStorageRepository
+import com.umang.biotrace.data.repository.remote.ApiResult
 import com.umang.biotrace.data.repository.remote.ScanRepository
 import com.umang.biotrace.domain.model.CameraFacing
 import com.umang.biotrace.domain.model.CaptureResult
@@ -15,6 +16,7 @@ import com.umang.biotrace.domain.model.FingerType
 import com.umang.biotrace.domain.model.FrameAnalysis
 import com.umang.biotrace.domain.model.HandSide
 import com.umang.biotrace.domain.model.MinutiaeRecord
+import com.umang.biotrace.domain.model.remote.ScanUploadRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -139,10 +141,52 @@ class CaptureViewModel(
                     )
                 }
             }.onSuccess {
-                if (_uiState.value.activeFingerIndex >= FingerType.entries.size) onCompleted()
+                val updatedState = _uiState.value
+                if (updatedState.activeFingerIndex >= FingerType.entries.size) {
+                    // All 5 fingers done — upload to backend then navigate
+                    uploadScan(updatedState, onCompleted)
+                }
             }.onFailure { error ->
                 _uiState.update { it.copy(isCapturing = false) }
                 showMessage(error.message ?: "Unable to capture finger")
+            }
+        }
+    }
+
+    private fun uploadScan(state: CaptureUiState, onCompleted: () -> Unit) {
+        val metrics = state.result.lastMetrics ?: return
+        val handSide = state.capturedPalmHandSide ?: return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isUploading = true) }
+
+            val request = ScanUploadRequest(
+                handSide = handSide.label,
+                palmImagePath = state.result.palmPath,
+                fingerImagePaths = state.result.fingerPaths,
+                brightnessScore = metrics.brightnessScore,
+                blurScore = metrics.blurScore,
+                focusDistance = metrics.focusDistance,
+                lightType = metrics.lightType.label,
+                deviceId = metrics.deviceId
+            )
+
+            when (val result = scanRepository.uploadScan(request)) {
+                is ApiResult.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isUploading = false,
+                            uploadedScanId = result.data.id  // save the id the server gave us
+                        )
+                    }
+                    showMessage("Scan uploaded successfully")
+                    onCompleted()
+                }
+                is ApiResult.Error -> {
+                    _uiState.update { it.copy(isUploading = false) }
+                    showMessage("Upload failed: ${result.message}. Proceeding anyway.")
+                    onCompleted()  // still navigate even if upload fails
+                }
             }
         }
     }
@@ -163,6 +207,8 @@ data class CaptureUiState(
     val cameraFacing: CameraFacing = CameraFacing.Rear,
     val activeFingerIndex: Int = 0,
     val isCapturing: Boolean = false,
+    val isUploading: Boolean = false,
+    val uploadedScanId: Long? = null,
     val statusMessage: String? = null,
     val result: CaptureResult = CaptureResult()
 ) {
