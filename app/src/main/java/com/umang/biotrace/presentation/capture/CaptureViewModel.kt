@@ -97,7 +97,7 @@ class CaptureViewModel(
             return
         }
 
-        if (analysis.blurScore < 0.18f) {
+        if (analysis.blurScore < 0.15f) {
             showMessage("Image is blurred. Please recapture the finger.")
             return
         }
