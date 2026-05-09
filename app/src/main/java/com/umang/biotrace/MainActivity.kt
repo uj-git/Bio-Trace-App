@@ -4,9 +4,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.navigation.compose.rememberNavController
 import com.umang.biotrace.base.BaseActivity
 import com.umang.biotrace.presentation.navigation.AppNavGraph
@@ -14,19 +12,19 @@ import com.umang.biotrace.ui.theme.BioTraceTheme
 
 class MainActivity : BaseActivity() {
 
-    private var permissionsGranted by mutableStateOf(false)
+    private val permissionsGranted = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         requestRuntimePermissions { granted ->
-            permissionsGranted = granted
+            permissionsGranted.value = granted
         }
 
         setContent {
             BioTraceTheme {
-                BioTraceApp(permissionsGranted = permissionsGranted)
+                BioTraceApp(permissionsGranted = permissionsGranted.value)
             }
         }
     }
