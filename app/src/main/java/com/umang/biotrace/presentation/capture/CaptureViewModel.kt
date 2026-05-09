@@ -7,7 +7,8 @@ import com.umang.biotrace.data.CameraInfoProvider
 import com.umang.biotrace.data.CameraMetricStore
 import com.umang.biotrace.data.FingerValidation
 import com.umang.biotrace.data.HandDetectionEngine
-import com.umang.biotrace.data.ImageStorageRepository
+import com.umang.biotrace.data.repository.local.ImageStorageRepository
+import com.umang.biotrace.data.repository.remote.ScanRepository
 import com.umang.biotrace.domain.model.CameraFacing
 import com.umang.biotrace.domain.model.CaptureResult
 import com.umang.biotrace.domain.model.FingerType
@@ -25,7 +26,8 @@ class CaptureViewModel(
     private val imageStorageRepository: ImageStorageRepository,
     private val cameraInfoProvider: CameraInfoProvider,
     private val metricStore: CameraMetricStore,
-    private val handDetectionEngine: HandDetectionEngine
+    private val handDetectionEngine: HandDetectionEngine,
+    private val scanRepository: ScanRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CaptureUiState())

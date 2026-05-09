@@ -16,5 +16,5 @@ val appModule = module {
     single { CameraMetricStore(androidContext()) }
     single { HandDetectionEngine() }
     single { ScanRepository(get()) }
-    viewModel { CaptureViewModel(get(), get(), get(), get()) }
+    viewModel { CaptureViewModel(get(), get(), get(), get(), get()) }
 }
