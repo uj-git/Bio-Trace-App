@@ -15,6 +15,7 @@ import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import com.umang.biotrace.domain.model.*
 
 class ImageStorageRepository(private val context: Context) {
 
