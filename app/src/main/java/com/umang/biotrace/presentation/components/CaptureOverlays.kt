@@ -29,7 +29,7 @@ fun PalmOverlay(modifier: Modifier = Modifier) {
             size = Size(ovalWidth, ovalHeight),
             style = Stroke(width = 5.dp.toPx(), cap = StrokeCap.Round)
         )
-        drawPalmGuides(left, top, ovalWidth, ovalHeight)
+//        drawPalmGuides(left, top, ovalWidth, ovalHeight)
     }
 }
 
