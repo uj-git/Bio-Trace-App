@@ -1,5 +1,7 @@
 package com.umang.biotrace.data.remote
 
+import com.umang.biotrace.domain.model.remote.ScanResponse
+import com.umang.biotrace.domain.model.remote.ScanUploadRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
