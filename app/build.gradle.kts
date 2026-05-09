@@ -71,6 +71,13 @@ dependencies {
     // MediaPipe
     implementation(libs.mediapipe)
 
+    // Retrofit + OkHttp - for making API calls
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+
+
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
