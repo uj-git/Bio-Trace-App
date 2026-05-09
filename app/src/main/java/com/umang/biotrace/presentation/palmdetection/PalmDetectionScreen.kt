@@ -46,7 +46,7 @@ fun PalmDetectionScreen(
             }
         )
 
-        PalmOverlay(modifier = Modifier.fillMaxSize())
+        PalmOverlay(modifier = Modifier.fillMaxSize(), brightnessScore = state.frameAnalysis.brightnessScore)
 
         Column(
             modifier = Modifier

@@ -47,7 +47,7 @@ fun FingerDetectionScreen(
             }
         )
 
-        FingerOverlay(modifier = Modifier.fillMaxSize())
+        FingerOverlay(modifier = Modifier.fillMaxSize(), brightnessScore = state.frameAnalysis.brightnessScore)
 
         Column(
             modifier = Modifier
