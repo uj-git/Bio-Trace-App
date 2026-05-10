@@ -7,6 +7,7 @@ import com.umang.biotrace.data.CameraInfoProvider
 import com.umang.biotrace.data.CameraMetricStore
 import com.umang.biotrace.data.FingerValidation
 import com.umang.biotrace.data.HandDetectionEngine
+import com.umang.biotrace.data.LastScanStore
 import com.umang.biotrace.data.repository.local.ImageStorageRepository
 import com.umang.biotrace.data.repository.remote.ApiResult
 import com.umang.biotrace.data.repository.remote.ScanRepository
@@ -29,7 +30,8 @@ class CaptureViewModel(
     private val cameraInfoProvider: CameraInfoProvider,
     private val metricStore: CameraMetricStore,
     private val handDetectionEngine: HandDetectionEngine,
-    private val scanRepository: ScanRepository
+    private val scanRepository: ScanRepository,
+    private val lastScanStore: LastScanStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CaptureUiState())
@@ -154,40 +156,45 @@ class CaptureViewModel(
     }
 
     private fun uploadScan(state: CaptureUiState, onCompleted: () -> Unit) {
-        val metrics = state.result.lastMetrics ?: return
-        val handSide = state.capturedPalmHandSide ?: return
+        val metrics = state.result.lastMetrics ?: run { onCompleted(); return }
+        val handSide = state.capturedPalmHandSide ?: run { onCompleted(); return }
 
         viewModelScope.launch {
             _uiState.update { it.copy(isUploading = true) }
 
             val request = ScanUploadRequest(
-                handSide = handSide.label,
-                palmImagePath = state.result.palmPath,
+                handSide         = handSide.label,
+                palmImagePath    = state.result.palmPath,
                 fingerImagePaths = state.result.fingerPaths,
-                brightnessScore = metrics.brightnessScore,
-                blurScore = metrics.blurScore,
-                focusDistance = metrics.focusDistance,
-                lightType = metrics.lightType.label,
-                deviceId = metrics.deviceId
+                brightnessScore  = metrics.brightnessScore,
+                blurScore        = metrics.blurScore,
+                focusDistance    = metrics.focusDistance,
+                lightType        = metrics.lightType.label,
+                deviceId         = metrics.deviceId
             )
 
             when (val result = scanRepository.uploadScan(request)) {
                 is ApiResult.Success -> {
+                    // Persist locally so HomeScreen can show it immediately
+                    lastScanStore.save(result.data)
+                    _uiState.update {
+                        it.copy(
+                            isUploading    = false,
+                            uploadedScanId = result.data.id,
+                            uploadError    = null
+                        )
+                    }
+                }
+                is ApiResult.Error -> {
                     _uiState.update {
                         it.copy(
                             isUploading = false,
-                            uploadedScanId = result.data.id  // save the id the server gave us
+                            uploadError = result.message
                         )
                     }
-                    showMessage("Scan uploaded successfully")
-                    onCompleted()
-                }
-                is ApiResult.Error -> {
-                    _uiState.update { it.copy(isUploading = false) }
-                    showMessage("Upload failed: ${result.message}. Proceeding anyway.")
-                    onCompleted()  // still navigate even if upload fails
                 }
             }
+            onCompleted()
         }
     }
 
@@ -209,6 +216,7 @@ data class CaptureUiState(
     val isCapturing: Boolean = false,
     val isUploading: Boolean = false,
     val uploadedScanId: Long? = null,
+    val uploadError: String? = null,
     val statusMessage: String? = null,
     val result: CaptureResult = CaptureResult()
 ) {
