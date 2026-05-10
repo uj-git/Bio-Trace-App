@@ -1,7 +1,5 @@
 package com.umang.biotrace.data
 
-package com.umang.biotrace.data
-
 import android.content.Context
 import com.umang.biotrace.domain.model.remote.ScanResponse
 import org.json.JSONObject
