@@ -35,7 +35,6 @@ Find your IP: `ipconfig` on Windows, `ifconfig` on Mac
 | Method | Endpoint | Description |
 |---|---|---|
 | POST | `/api/scans` | Upload scan session |
-| GET | `/api/scans` | List all scans |
 | GET | `/api/scans/{id}` | Get scan by ID |
 
 ## Key Features
