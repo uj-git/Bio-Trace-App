@@ -33,7 +33,6 @@ class HomeViewModel(
     // Called from HomeScreen when it becomes visible — refreshes from server
     fun refreshFromServer() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
             when (val result = scanRepository.getAllScans()) {
                 is ApiResult.Success -> {
                     // The last item in the list is the most recently uploaded scan
@@ -46,13 +45,9 @@ class HomeViewModel(
                                 lastScan = lastScanStore.load()
                             )
                         }
-                    } else {
-                        _uiState.update { it.copy(isLoading = false) }
                     }
                 }
                 is ApiResult.Error -> {
-                    // Server unreachable — keep showing locally cached result
-                    _uiState.update { it.copy(isLoading = false) }
                 }
             }
         }

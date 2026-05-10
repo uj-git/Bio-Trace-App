@@ -29,7 +29,9 @@ fun HomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .padding(4.dp)
+            .windowInsetsPadding(WindowInsets.safeDrawing)
+        ,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -76,7 +78,7 @@ fun HomeScreen(
             Text(text = "Start New Scan", fontSize = 16.sp)
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(4.dp))
     }
 }
 
@@ -154,8 +156,8 @@ private fun ScanRow(label: String, value: String) {
             .padding(vertical = 3.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = label, fontSize = 13.sp, color = Color.Gray)
-        Text(text = value, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+        Text(text = label, fontSize = 13.sp, color = Color.White)
+        Text(text = value, fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Medium)
     }
 }
 
