@@ -2,11 +2,12 @@ package com.umang.biotrace.base
 
 import android.Manifest
 import android.os.Build
+import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 
-abstract class BaseActivity : FragmentActivity() {
+abstract class BaseActivity : ComponentActivity() {
 
     private var onPermissionResult: ((Boolean) -> Unit)? = null
 
@@ -18,13 +19,6 @@ abstract class BaseActivity : FragmentActivity() {
     protected fun requestRuntimePermissions(onResult: (Boolean) -> Unit) {
         onPermissionResult = onResult
         permissionLauncher.launch(requiredPermissions())
-    }
-
-    protected fun replaceFragment(containerId: Int, fragment: Fragment, addToBackStack: Boolean = false) {
-        val transaction = supportFragmentManager.beginTransaction()
-            .replace(containerId, fragment)
-        if (addToBackStack) transaction.addToBackStack(fragment::class.java.simpleName)
-        transaction.commit()
     }
 
     private fun requiredPermissions(): Array<String> {
