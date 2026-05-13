@@ -175,6 +175,8 @@ class CaptureViewModel(
 
             lastScanStore.save(request.toScanResponseLocal())
 
+            onCompleted()
+
             when (val result = scanRepository.uploadScan(request)) {
                 is ApiResult.Success -> {
                     lastScanStore.save(result.data)
@@ -195,7 +197,6 @@ class CaptureViewModel(
                     }
                 }
             }
-            onCompleted()
         }
     }
 

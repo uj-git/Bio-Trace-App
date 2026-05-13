@@ -1,5 +1,9 @@
 package com.umang.biotrace.domain.model.remote
 
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 data class ScanUploadRequest(
     val handSide: String,
     val palmImagePath: String?,
@@ -20,7 +24,7 @@ data class ScanUploadRequest(
             focusDistance = this.focusDistance,
             lightType = this.lightType,
             deviceId = this.deviceId,
-            capturedAt = System.currentTimeMillis().toString()
+            capturedAt = SimpleDateFormat("dd MMM yyyy, HH:mm:ss", Locale.getDefault()).format(Date())
     )
 
 }
