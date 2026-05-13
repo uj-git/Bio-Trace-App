@@ -173,9 +173,10 @@ class CaptureViewModel(
                 deviceId         = metrics.deviceId
             )
 
+            lastScanStore.save(request.toScanResponseLocal())
+
             when (val result = scanRepository.uploadScan(request)) {
                 is ApiResult.Success -> {
-                    // Persist locally so HomeScreen can show it immediately
                     lastScanStore.save(result.data)
                     _uiState.update {
                         it.copy(

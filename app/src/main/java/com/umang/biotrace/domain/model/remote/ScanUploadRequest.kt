@@ -9,4 +9,18 @@ data class ScanUploadRequest(
     val focusDistance: Float,
     val lightType: String,
     val deviceId: String
-)
+) {
+    fun toScanResponseLocal() = ScanResponse(
+            id = 1L,
+            handSide = this.handSide,
+            palmImagePath = this.palmImagePath,
+            fingerImagePaths = this.fingerImagePaths.joinToString(),
+            brightnessScore = this.brightnessScore,
+            blurScore = this.blurScore,
+            focusDistance = this.focusDistance,
+            lightType = this.lightType,
+            deviceId = this.deviceId,
+            capturedAt = System.currentTimeMillis().toString()
+    )
+
+}
